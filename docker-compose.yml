@@ -1,0 +1,40 @@
+x-defaults:
+  network: &network
+    networks:
+      - net
+
+services:
+  php:
+    build: ./docker
+    ports:
+      - 8000:80
+    volumes:
+      - ./:/var/www/html
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    <<: *network
+
+  db:
+    image: mysql:latest
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=testDocker
+      - MYSQL_USER=user1
+      - MYSQL_PASSWORD=user1
+    <<: *network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    depends_on:
+      - "db"
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+    ports:
+      - "8888:80"
+    <<: *network
+
+networks:
+  net:
